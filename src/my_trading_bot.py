@@ -35,9 +35,9 @@ interval = Client.KLINE_INTERVAL_1DAY
 period = '365 day'
 ema_length = 12
 ma_size = 30
-
-# prepare data
 window = 7
+
+
 def get_coin_data(symbol: str, interval, period: str):
     global window
     frame = pd.DataFrame(client.get_historical_klines(symbol, interval, period+' ago UTC'))
@@ -62,6 +62,7 @@ def get_coin_data(symbol: str, interval, period: str):
     frame.index = pd.to_datetime(frame.index, unit='ms')
     return frame
 
+
 coin = get_coin_data(symbol, interval, period)
 print(coin[['Close', f'{window}_day_diff', f'SMA_{ma_size}', 'macd', 'signal_line']].tail(10))
 
@@ -79,8 +80,8 @@ for x in range(len(coin)):
         buy_signals.append(float(coin["Close"].iloc[x]))
         sell_signals.append(math.nan)
 
-        #order = client.create_order(symbol=symbol, side='BUY', type='MARKET', quantity=quantity)
-        #print(order)
+        # order = client.create_order(symbol=symbol, side='BUY', type='MARKET', quantity=quantity)
+        # print(order)
         BOUGHT = True
 
     elif (coin[f'{window}_day_diff'].iloc[x] <= 0 or (coin[f'EMA_{ema_length}'].iloc[x] > coin['Close'].iloc[x])) and (BOUGHT == True):
@@ -115,6 +116,7 @@ for row in range(len(coin)):
 buys = [p for p in buy_signals if str(p) != 'nan']
 sells = [p for p in sell_signals if str(p) != 'nan']
 
+
 # calculate return from one trade
 def one_transaction(invest: float, enter_price: float, exit_price: float):
     amount = invest / enter_price
@@ -125,6 +127,7 @@ def one_transaction(invest: float, enter_price: float, exit_price: float):
     else:
         success = False
     return investment_return, success
+
 
 # calculate total investment return. Input initial starting capital in dollars
 def total_return(start: int) -> None:
@@ -142,6 +145,7 @@ def total_return(start: int) -> None:
     percent_profit = siano / start * 100 - 100
     print(f'Your portfolio grew in value by {percent_profit:.2f}%.')
     return None
+
 
 print(total_return(10))
 plt.show()
